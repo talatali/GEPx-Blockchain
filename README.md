@@ -1,5 +1,9 @@
 # GEPx-Blockchain
-Hyperledger fabric POC
+Welcome to the Blockchain hands-on demo. This guide walks through the steps needed to complete the prerequisite installation as well as the main demo activities.
+
+How to read this guide:
+The green code snippets are to be copy-pasted into the command line interface (note - '+' sign indiactes command to be executed please copy commands without '+' sign)
+
 
 ## Use Case - GE Power Exchange 
 
