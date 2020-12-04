@@ -1,13 +1,13 @@
 # GEPx-Blockchain
 Hyperledger fabric POC
 
-### Use Case - GE Power Exchange 
+## Use Case - GE Power Exchange 
 
 - This is simple power exchange model which demonstrates volume based power exchange settlement.
 
-### Steps to run application
+## Steps to run application
 
-#### Installing Pre-requisites 
+### Installing Pre-requisites 
 (note - '+' sign indiactes command to be executed please copy commands without '+' sign)
 
 #1 SSH into your VM
@@ -104,7 +104,7 @@ exit
 
 Now we are done with prerequisite installation!
 
-#### Installing Hyperledger Fabric
+### Installing Hyperledger Fabric
 
 #1 Goto go/src directory
 ```diff
@@ -117,7 +117,7 @@ Now we are done with prerequisite installation!
 ```
 This will install hyperledger fabric including [fabric-samples](https://github.com/hyperledger/fabric-samples) folder which we will use for creating test-network with CA.
 
-#### Cloning this repository
+### Cloning this repository
 
 #1 cd into fabric-sample directory
 ```diff
@@ -130,7 +130,7 @@ This will install hyperledger fabric including [fabric-samples](https://github.c
 ```
 (Make sure you clone this repository inside fabric-samples!)
 
-#### Create channel with CA
+### Create channel with CA
 
 #1 Goto test-network directory
 ```diff
@@ -147,7 +147,7 @@ cd test-network
 ```
 This will create a channel to which we will add two nodes(org1 and org2) to the network for POC
 
-#### Deploy Smart-Contract on channel
+### Deploy Smart-Contract on channel
 
 Make sure you are in test-network directory and run following command
 ```diff
@@ -179,7 +179,7 @@ Query chaincode definition successful on peer0.org2 on channel 'mychannel'
 Chaincode initialization is not required
 ```
 
-#### Running Application
+### Running Application
 
 To run the POC application goto GEPx-Blockchain/application-javascript
 ```diff
@@ -947,7 +947,7 @@ Built a file system wallet at /opt/go/src/github.com/fabric-samples/GEPx-Blockch
 } 
 
 ```
-#### Deleting Database
+### Deleting Database
 
 Once we are done with all execution we can clean up our database using following command
 
@@ -955,7 +955,7 @@ Once we are done with all execution we can clean up our database using following
 + rm -rf wallet
 ```
 
-#### Shut down network
+### Shut down network
 
 - Go to test-network directory
 ```diff
