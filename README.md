@@ -7,43 +7,151 @@ Hyperledger fabric POC
 
 ### Steps to run application
 
-#### Pre-requisites 
-- Go (version 1.15.x)
-- NodeJS (v14.15.1)
-- Docker
-- Docker-compose
-To install prerequisites execute [installation.sh](https://github.com/Gayatri212/GEPx-Blockchain/blob/main/installation.sh) file 
+#### Installing Pre-requisites 
+(note - '+' sign indiactes command to be executed please copy commands without '+' sign)
+
+#1 SSH into your VM
+
+- Open command promt from the folder where your .pem file is stored
+
+- ssh into your VM
+```diff
++ ssh -i <pemfile>.pem ec2-user@<public-ip>
+```
+
+#1 Create a file install.sh and copy paste following contents to it
+
+Create and open file
+```diff
++ vi install.sh
+```
+
+Copy this and paste it to the file by right clicking on command promt
+```
+sudo yum install docker
+sudo systemctl start docker
+sudo systemctl enable docker
+sudo usermod -a -G docker ec2-user
+sudo chmod 666 /var/run/docker.sock
+sudo curl -L "https://github.com/docker/compose/releases/download/1.27.4/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+sudo yum install git
+curl https://dl.google.com/go/go1.15.2.linux-amd64.tar.gz --output go1.15.2.linux-amd64.tar.gz
+sudo tar -C /usr/local -xzf go1.15.2.linux-amd64.tar.gz
+sudo yum install java-1.8.0-openjdk
+sudo yum install -y gcc-c++ make
+curl -sL https://rpm.nodesource.com/setup_12.x | sudo -E bash -
+sudo yum install -y nodejs
+```
+
+Make sure you don't miss any letter from above contents! 
+If any letter is missed you can input it
+```
+Press I key on keyboard
+Using arrow keys go to place where you want to input the missing letter
+Type your missing letter
+```
+
+Save and close file
+```
+Press Esc key
+type :wq!
+```
+
+#2 Give execute permissions to the file
+
+```diff
++ chmod +x install.sh
+```
+
+#3 Execute install.sh
+
+```diff
++ ./insatll.sh
+```
+While installing promt will ask for inputs. Give 'Y' to all.
+
+#4 Give permissions
+
+```diff
++ sudo chmod 777 /usr/local/bin/docker-compose
++ sudo chmod 777 /usr/local/go/pkg
++ sudo chmod 777 /usr/local/go/src
+```
+
+#5 Set Environment Variables
+- Open .bash_profile file
+```diff
++ vi .bash_profile
+```
+- Copy paste following to the file
+```
+export PATH=$PATH:/usr/local/go/bin
+export GOPATH=/usr/local/go
+```
+- Save the file
+```
+press Esc key
+:wq!
+```
+- Exit from VM
+```
+exit
+```
+- Restart the VM
+```diff
++ ssh -i <pemfile>.pem ec2-user@<public-ip>
+```
+
+Now we are done with prerequisite installation!
 
 #### Installing Hyperledger Fabric
 
+#1 Goto go/src directory
+```diff
++ cd $GOPATH/src
 ```
-cd $GOPATH
-chmod +wx src
-cd src
-sudo curl -sSL https://bit.ly/2ysbOFE | bash -s
+
+#2 Run following command
+```diff
++ sudo curl -sSL https://bit.ly/2ysbOFE | bash -s
 ```
 This will install hyperledger fabric including [fabric-samples](https://github.com/hyperledger/fabric-samples) folder which we will use for creating test-network with CA.
 
 #### Cloning this repository
 
+#1 cd into fabric-sample directory
+```diff
++ cd $GOPATH/src/fabric-samples
 ```
-cd fabric-samples
-git clone https://github.com/Gayatri212/GEPx-Blockchain.git
+
+#2 Clone this repo using following command
+```diff
++ git clone https://github.com/GE-Blockchain-Demo/GEPx-Blockchain.git
 ```
-Make sure you clone this repository inside fabric-samples folder
+(Make sure you clone this repository inside fabric-samples!)
 
 #### Create channel with CA
 
+#1 Goto test-network directory
+```diff
++ cd $GOPATH/src/fabric-samples/test-network
 ```
-cd fabric-samples/test-network
-./network.sh up createChannel -ca
+If you are already in fabric-samples use
 ```
-This will create a channel to which we will add our orgs for POC
+cd test-network
+```
+
+#2 Create Channel with CA
+```diff
++ ./network.sh up createChannel -ca
+```
+This will create a channel to which we will add two nodes(org1 and org2) to the network for POC
 
 #### Deploy Smart-Contract on channel
 
-```
-./network.sh deployCC -ccn gepx -ccp ../GEPx-Blockchain/chaincode-go/ -ccep "OR('Org1MSP.peer','Org2MSP.peer')"
+Make sure you are in test-network directory and run following command
+```diff
++ ./network.sh deployCC -ccn gepx -ccp ../GEPx-Blockchain/chaincode-go/ -ccep "OR('Org1MSP.peer','Org2MSP.peer')"
 ```
 This will add org1 and org2 to the channel and deploy chaincode named gepx on them. By default it will chreate one peer per org.
 
@@ -73,16 +181,34 @@ Chaincode initialization is not required
 
 #### Running Application
 
+To run the POC application goto GEPx-Blockchain/application-javascript
+```diff
++ cd $GOPATH/src/fabric-samples/GEPx-Blockchain/application-javascript
+```
+
+To make sure all dependecies are installed run
+```diff
++ npm install
+```
+
+This should give output as
+```
+found 0 vulnerabilities
+```
+
+Now we are ready to run! 
+Follow the steps given below
+
 #1 Enroll network nodes
 
 Command to run-
-```
-node enrollNode.js <node>
+```diff
++ node enrollNode.js <node>
 ```
 
 Output - Enroll node1
-```
-$ node enrollNode.js org1
+```diff
++ $ node enrollNode.js org1
 
 --> Enrolling the Org1 CA admin
 Loaded the network configuration located at /opt/go/src/github.com/fabric-samples/test-network/organizations/peerOrganizations/org1.example.com/connection-org1.json
@@ -92,8 +218,8 @@ Successfully enrolled admin user and imported it into the wallet
 ```
 
 Output - Enroll node2
-```
-$ node enrollNode.js org2
+```diff
++ $ node enrollNode.js org2
 
 --> Enrolling the Org2 CA admin
 Loaded the network configuration located at /opt/go/src/github.com/fabric-samples/test-network/organizations/peerOrganizations/org2.example.com/connection-org2.json
@@ -105,13 +231,13 @@ Successfully enrolled admin user and imported it into the wallet
 #2 Register Admin
 
 command to run -
-```
-node registerEnrollUser.js <node> <Admin>
+```diff
++ node registerEnrollUser.js <node> <Admin>
 ```
 
 Output - 
-```
-$ node registerEnrollUser.js org1 adminuser
+```diff
++ $ node registerEnrollUser.js org1 adminuser
 
 --> Register and enrolling new user
 Loaded the network configuration located at /opt/go/src/github.com/fabric-samples/test-network/organizations/peerOrganizations/org1.example.com/connection-org1.json
@@ -123,13 +249,13 @@ Successfully registered and enrolled user adminuser and imported it into the wal
 #3 Create Session - This will initialize the session for bidding
 
 Command to run -
-```
- node createSession.js <node> <Admin> <sessionID>
+```diff
++ node createSession.js <node> <Admin> <sessionID>
 ```
 
 Output - 
-```
-$ node createSession.js org1 adminuser session1
+```diff
++ $ node createSession.js org1 adminuser session1
 Loaded the network configuration located at /opt/go/src/github.com/fabric-samples/test-network/organizations/peerOrganizations/org1.example.com/connection-org1.json
 Built a file system wallet at /opt/go/src/github.com/fabric-samples/GEPx-Blockchain/application-javascript/wallet/org1
 
@@ -151,13 +277,13 @@ Built a file system wallet at /opt/go/src/github.com/fabric-samples/GEPx-Blockch
 #4 Register companies for bidding
 
 Command to run -
-```
-node registerEnrollUser.js <node> <companyID>
+```diff
++ node registerEnrollUser.js <node> <companyID>
 ```
 
 Output - Register company1 to node1
-```
-$ node registerEnrollUser.js org1 company1
+```diff
++ $ node registerEnrollUser.js org1 company1
 
 --> Register and enrolling new user
 Loaded the network configuration located at /opt/go/src/github.com/fabric-samples/test-network/organizations/peerOrganizations/org1.example.com/connection-org1.json
@@ -167,8 +293,8 @@ Successfully registered and enrolled user company1 and imported it into the wall
 ```
 
 Output - Register company2 to node1
-```
-$ node registerEnrollUser.js org1 company2
+```diff
++ $ node registerEnrollUser.js org1 company2
 
 --> Register and enrolling new user
 Loaded the network configuration located at /opt/go/src/github.com/fabric-samples/test-network/organizations/peerOrganizations/org1.example.com/connection-org1.json
@@ -178,8 +304,8 @@ Successfully registered and enrolled user company2 and imported it into the wall
 ```
 
 Output - Register company3 to node2
-```
-$ node registerEnrollUser.js org2 company3
+```diff
++ $ node registerEnrollUser.js org2 company3
 
 --> Register and enrolling new user
 Loaded the network configuration located at /opt/go/src/github.com/fabric-samples/test-network/organizations/peerOrganizations/org2.example.com/connection-org2.json
@@ -189,8 +315,8 @@ Successfully registered and enrolled user company3 and imported it into the wall
 ```
 
 Output - Register company4 to node2
-```
-$ node registerEnrollUser.js org2 company4
+```diff
++ $ node registerEnrollUser.js org2 company4
 
 --> Register and enrolling new user
 Loaded the network configuration located at /opt/go/src/github.com/fabric-samples/test-network/organizations/peerOrganizations/org2.example.com/connection-org2.json
@@ -203,18 +329,18 @@ Successfully registered and enrolled user company4 and imported it into the wall
 
 Command to run -
 1. Create bid
-```
-node bid.js <node> <companyID> <sessionID> <Volume> <bidType(sell/buy)>
+```diff
++ node bid.js <node> <companyID> <sessionID> <Volume> <bidType(sell/buy)>
 ```
 
 2. Submit bid
+```diff
++ node submitBid.js <node> <companyID> <sessionID> <BidID(generated by above command)>
 ```
- node submitBid.js <node> <companyID> <sessionID> <BidID(generated by above command)>
- ```
 
 Output - Create bid for company1
-```
-$ node bid.js org1 company1 session1 1000 sell
+```diff
++ $ node bid.js org1 company1 session1 1000 sell
 Loaded the network configuration located at /opt/go/src/github.com/fabric-samples/test-network/organizations/peerOrganizations/org1.example.com/connection-org1.json
 Built a file system wallet at /opt/go/src/github.com/fabric-samples/GEPx-Blockchain/application-javascript/wallet/org1
 
@@ -223,7 +349,7 @@ Built a file system wallet at /opt/go/src/github.com/fabric-samples/GEPx-Blockch
 
 --> Submit Session: Create the bid that is stored in your organization's private data collection
 *** Result: committed
-*** Result ***SAVE THIS VALUE*** BidID: d10a570fa1e9566afcd956858aadf6e20de67157b4dfbb71b705c537c3535a4a
++ *** Result ***SAVE THIS VALUE*** BidID: d10a570fa1e9566afcd956858aadf6e20de67157b4dfbb71b705c537c3535a4a
 
 --> Evaluate Session: read the bid that was just created
 *** Result:  Bid: {
@@ -236,8 +362,8 @@ Built a file system wallet at /opt/go/src/github.com/fabric-samples/GEPx-Blockch
 ```
 
 Output - Submit bid for company1
-```
-$ node submitBid.js org1 company1 session1 d10a570fa1e9566afcd956858aadf6e20de67157b4dfbb71b705c537c3535a4a
+```diff
++ $ node submitBid.js org1 company1 session1 d10a570fa1e9566afcd956858aadf6e20de67157b4dfbb71b705c537c3535a4a
 Loaded the network configuration located at /opt/go/src/github.com/fabric-samples/test-network/organizations/peerOrganizations/org1.example.com/connection-org1.json
 Built a file system wallet at /opt/go/src/github.com/fabric-samples/GEPx-Blockchain/application-javascript/wallet/org1
 
@@ -263,8 +389,8 @@ Built a file system wallet at /opt/go/src/github.com/fabric-samples/GEPx-Blockch
 ```
 
 Output - Create bid for company2
-```
-$ node bid.js org1 company2 session1 700 sell
+```diff
++ $ node bid.js org1 company2 session1 700 sell
 Loaded the network configuration located at /opt/go/src/github.com/fabric-samples/test-network/organizations/peerOrganizations/org1.example.com/connection-org1.json
 Built a file system wallet at /opt/go/src/github.com/fabric-samples/GEPx-Blockchain/application-javascript/wallet/org1
 
@@ -273,7 +399,7 @@ Built a file system wallet at /opt/go/src/github.com/fabric-samples/GEPx-Blockch
 
 --> Submit Session: Create the bid that is stored in your organization's private data collection
 *** Result: committed
-*** Result ***SAVE THIS VALUE*** BidID: 40cd1b51d68a51e849ed8632d14b64526082d5959a195071869a6f02b0fe6d09
++ *** Result ***SAVE THIS VALUE*** BidID: 40cd1b51d68a51e849ed8632d14b64526082d5959a195071869a6f02b0fe6d09
 
 --> Evaluate Session: read the bid that was just created
 *** Result:  Bid: {
@@ -286,8 +412,8 @@ Built a file system wallet at /opt/go/src/github.com/fabric-samples/GEPx-Blockch
 ```
 
 Output - Submit bid for company2
-```
-$ node submitBid.js org1 company2 session1 40cd1b51d68a51e849ed8632d14b64526082d5959a195071869a6f02b0fe6d09
+```diff
++ $ node submitBid.js org1 company2 session1 40cd1b51d68a51e849ed8632d14b64526082d5959a195071869a6f02b0fe6d09
 Loaded the network configuration located at /opt/go/src/github.com/fabric-samples/test-network/organizations/peerOrganizations/org1.example.com/connection-org1.json
 Built a file system wallet at /opt/go/src/github.com/fabric-samples/GEPx-Blockchain/application-javascript/wallet/org1
 
@@ -317,8 +443,8 @@ Built a file system wallet at /opt/go/src/github.com/fabric-samples/GEPx-Blockch
 ```
 
 Output - create bid for company3
-```
-$ node bid.js org2 company3 session1 600 buy
+```diff
++ $ node bid.js org2 company3 session1 600 buy
 Loaded the network configuration located at /opt/go/src/github.com/fabric-samples/test-network/organizations/peerOrganizations/org2.example.com/connection-org2.json
 Built a file system wallet at /opt/go/src/github.com/fabric-samples/GEPx-Blockchain/application-javascript/wallet/org2
 
@@ -327,7 +453,7 @@ Built a file system wallet at /opt/go/src/github.com/fabric-samples/GEPx-Blockch
 
 --> Submit Session: Create the bid that is stored in your organization's private data collection
 *** Result: committed
-*** Result ***SAVE THIS VALUE*** BidID: aa88a7f7d33232424ac492feb02ae207a15465c674814dc7536ef244cb4ce250
++ *** Result ***SAVE THIS VALUE*** BidID: aa88a7f7d33232424ac492feb02ae207a15465c674814dc7536ef244cb4ce250
 
 --> Evaluate Session: read the bid that was just created
 *** Result:  Bid: {
@@ -340,8 +466,8 @@ Built a file system wallet at /opt/go/src/github.com/fabric-samples/GEPx-Blockch
 ```
 
 Output - Submit bid for company3
-```
-$ node submitBid.js org2 company3 session1 aa88a7f7d33232424ac492feb02ae207a15465c674814dc7536ef244cb4ce250
+```diff
++ $ node submitBid.js org2 company3 session1 aa88a7f7d33232424ac492feb02ae207a15465c674814dc7536ef244cb4ce250
 Loaded the network configuration located at /opt/go/src/github.com/fabric-samples/test-network/organizations/peerOrganizations/org2.example.com/connection-org2.json
 Built a file system wallet at /opt/go/src/github.com/fabric-samples/GEPx-Blockchain/application-javascript/wallet/org2
 
@@ -376,8 +502,8 @@ Built a file system wallet at /opt/go/src/github.com/fabric-samples/GEPx-Blockch
 ```
 
 Output - create bid for company4
-```
-$ node bid.js org2 company4 session1 700 buy
+```diff
++ $ node bid.js org2 company4 session1 700 buy
 Loaded the network configuration located at /opt/go/src/github.com/fabric-samples/test-network/organizations/peerOrganizations/org2.example.com/connection-org2.json
 Built a file system wallet at /opt/go/src/github.com/fabric-samples/GEPx-Blockchain/application-javascript/wallet/org2
 
@@ -386,7 +512,7 @@ Built a file system wallet at /opt/go/src/github.com/fabric-samples/GEPx-Blockch
 
 --> Submit Session: Create the bid that is stored in your organization's private data collection
 *** Result: committed
-*** Result ***SAVE THIS VALUE*** BidID: cee404e3895c7f6e09f622d130e116aeff655f225f7c225a13ac60ba4f24d419
++ *** Result ***SAVE THIS VALUE*** BidID: cee404e3895c7f6e09f622d130e116aeff655f225f7c225a13ac60ba4f24d419
 
 --> Evaluate Session: read the bid that was just created
 *** Result:  Bid: {
@@ -399,8 +525,8 @@ Built a file system wallet at /opt/go/src/github.com/fabric-samples/GEPx-Blockch
 ```
 
 Output - Submit bid for company4
-```
-$ node submitBid.js org2 company4 session1 cee404e3895c7f6e09f622d130e116aeff655f225f7c225a13ac60ba4f24d419
+```diff
++ $ node submitBid.js org2 company4 session1 cee404e3895c7f6e09f622d130e116aeff655f225f7c225a13ac60ba4f24d419
 Loaded the network configuration located at /opt/go/src/github.com/fabric-samples/test-network/organizations/peerOrganizations/org2.example.com/connection-org2.json
 Built a file system wallet at /opt/go/src/github.com/fabric-samples/GEPx-Blockchain/application-javascript/wallet/org2
 
@@ -442,17 +568,13 @@ Built a file system wallet at /opt/go/src/github.com/fabric-samples/GEPx-Blockch
 
 Command to run -
 
-```
-node closeSession.js <node> <adminID> <sessionID>
+```diff
++ node closeSession.js <node> <adminID> <sessionID>
 ```
 
 Output -
-```
-$ node closeSession.js org1 adminuser session1
-Loaded the network configuration located at /opt/go/src/github.com/fabric-samples/test-network/organizations/peerOrganizations/org1.example.com/connection-org1.json
-Built a file system wallet at /opt/go/src/github.com/fabric-samples/GEPx-Blockchain/application-javascript/wallet/org1
-******** FAILED to submit bid: TypeError: contract.evaluateSession is not a function
-[predix@predix-devbox application-javascript]$ node closeSession.js org1 adminuser session1
+```diff
++ $ node closeSession.js org1 adminuser session1
 Loaded the network configuration located at /opt/go/src/github.com/fabric-samples/test-network/organizations/peerOrganizations/org1.example.com/connection-org1.json
 Built a file system wallet at /opt/go/src/github.com/fabric-samples/GEPx-Blockchain/application-javascript/wallet/org1
 
@@ -492,13 +614,13 @@ Built a file system wallet at /opt/go/src/github.com/fabric-samples/GEPx-Blockch
 #7 Finalize Bid - This will finalize the bid placed by companies. Only finalized bids will be considered for approval
 
 Command to run -
-```
-node finalizeBid.js <node> <comapnyID> <sessionID> <bidID>
+```diff
++ node finalizeBid.js <node> <comapnyID> <sessionID> <bidID>
 ```
 
 Output - Finalized bid for company4
-```
-$ node finalizeBid.js org2 company4 session1 cee404e3895c7f6e09f622d130e116aeff655f225f7c225a13ac60ba4f24d419
+```diff
++ $ node finalizeBid.js org2 company4 session1 cee404e3895c7f6e09f622d130e116aeff655f225f7c225a13ac60ba4f24d419
 Loaded the network configuration located at /opt/go/src/github.com/fabric-samples/test-network/organizations/peerOrganizations/org2.example.com/connection-org2.json
 Built a file system wallet at /opt/go/src/github.com/fabric-samples/GEPx-Blockchain/application-javascript/wallet/org2
 
@@ -550,8 +672,8 @@ Built a file system wallet at /opt/go/src/github.com/fabric-samples/GEPx-Blockch
 ```
 
 Output - Finalized bid for company3
-```
-$ node finalizeBid.js org2 company3 session1 aa88a7f7d33232424ac492feb02ae207a15465c674814dc7536ef244cb4ce250
+```diff
++ $ node finalizeBid.js org2 company3 session1 aa88a7f7d33232424ac492feb02ae207a15465c674814dc7536ef244cb4ce250
 Loaded the network configuration located at /opt/go/src/github.com/fabric-samples/test-network/organizations/peerOrganizations/org2.example.com/connection-org2.json
 Built a file system wallet at /opt/go/src/github.com/fabric-samples/GEPx-Blockchain/application-javascript/wallet/org2
 
@@ -610,8 +732,8 @@ Built a file system wallet at /opt/go/src/github.com/fabric-samples/GEPx-Blockch
 ```
 
 Output - Finalized bid for company2
-```
-$ node finalizeBid.js org1 company2 session1 40cd1b51d68a51e849ed8632d14b64526082d5959a195071869a6f02b0fe6d09
+```diff
++ $ node finalizeBid.js org1 company2 session1 40cd1b51d68a51e849ed8632d14b64526082d5959a195071869a6f02b0fe6d09
 Loaded the network configuration located at /opt/go/src/github.com/fabric-samples/test-network/organizations/peerOrganizations/org1.example.com/connection-org1.json
 Built a file system wallet at /opt/go/src/github.com/fabric-samples/GEPx-Blockchain/application-javascript/wallet/org1
 
@@ -677,8 +799,8 @@ Built a file system wallet at /opt/go/src/github.com/fabric-samples/GEPx-Blockch
 ```
 
 Output - Finalized bid for company1
-```
-$ node finalizeBid.js org1 company1 session1 d10a570fa1e9566afcd956858aadf6e20de67157b4dfbb71b705c537c3535a4a
+```diff
++ $ node finalizeBid.js org1 company1 session1 d10a570fa1e9566afcd956858aadf6e20de67157b4dfbb71b705c537c3535a4a
 Loaded the network configuration located at /opt/go/src/github.com/fabric-samples/test-network/organizations/peerOrganizations/org1.example.com/connection-org1.json
 Built a file system wallet at /opt/go/src/github.com/fabric-samples/GEPx-Blockchain/application-javascript/wallet/org1
 
@@ -753,13 +875,13 @@ Built a file system wallet at /opt/go/src/github.com/fabric-samples/GEPx-Blockch
 #8 End Session - This will evaluate the bids and provide approval
 
 Command to run -
-```
- node endSession.js <node> <adminID> <sessionID>
+```diff
++ node endSession.js <node> <adminID> <sessionID>
 ```
 
 Output -
-```
-$ node endSession.js org1 adminuser session1
+```diff
++ $ node endSession.js org1 adminuser session1
 Loaded the network configuration located at /opt/go/src/github.com/fabric-samples/test-network/organizations/peerOrganizations/org1.example.com/connection-org1.json
 Built a file system wallet at /opt/go/src/github.com/fabric-samples/GEPx-Blockchain/application-javascript/wallet/org1
 
@@ -826,12 +948,20 @@ Built a file system wallet at /opt/go/src/github.com/fabric-samples/GEPx-Blockch
 
 ```
 #### Deleting Database
-```
-rm -rf wallet
+
+Once we are done with all execution we can clean up our database using following command
+
+```diff
++ rm -rf wallet
 ```
 
 #### Shut down network
+
+- Go to test-network directory
+```diff
++ cd $GOPATH/src/fabric-samples/test-network
 ```
-cd fabric-samples/test-network
-./network.sh down
+- Shut down the network
+```diff
++ ./network.sh down
 ```
